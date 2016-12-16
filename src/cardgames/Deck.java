@@ -18,6 +18,10 @@ public class Deck extends ArrayList<Card>{
 		}
 	}
 	
+	public int cardsLeft() {
+		return size();
+	}
+	
 	public void shuffle() {
 		Collections.shuffle(this);
 	}

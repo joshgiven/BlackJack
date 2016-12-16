@@ -12,11 +12,8 @@ public class BJCard extends Card {
 		case ACE:
 			return 11;
 		case KING:
-			return 10;
 		case QUEEN:
-			return 10;
 		case JACK:
-			return 10;
 		case TEN:
 			return 10;
 		case NINE:
