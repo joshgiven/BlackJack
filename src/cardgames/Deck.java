@@ -1,21 +1,34 @@
 package cardgames;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class Deck {
-    public static void main(String[] args) {
-        List<Card> deck = new ArrayList<>(52);
+public class Deck extends ArrayList<Card>{
+	private static final long serialVersionUID = 1L;
 
-        for (Suit s : Suit.values()) {
-            for (Rank r : Rank.values()) {
-                deck.add(new Card(r, s));
-            }
-        }
-
-        for (Card card : deck) {
-            System.out.println(card);
-        }
-    }
+	public Deck() {
+		super(52);
+		initialize();
+	}
+	
+	private void initialize() {
+		for (Suit s : Suit.values()) {
+			for (Rank r : Rank.values()) {
+				add(new BJCard(r, s));
+			}
+		}
+	}
+	
+	public void shuffle() {
+		Collections.shuffle(this);
+	}
+	
+	public Card draw() {
+		return remove(0);
+	}
+	
+	public void cut(int index) {
+		index %= size();
+		Collections.rotate(this, index);
+	}
 
 }
