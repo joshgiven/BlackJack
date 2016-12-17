@@ -27,7 +27,8 @@ public abstract class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        return (rank + " of " + suit).toLowerCase();
+        // return suit.toString() + rank.toString();
+        return rank.toString();
     }
 
     @Override

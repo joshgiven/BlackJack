@@ -3,12 +3,19 @@ package cardgames;
 import java.util.*;
 
 public class Hand {
-	private static final long serialVersionUID = 1L;
 
 	private List<Card> cards;
 
 	public Hand() {
 		cards = new ArrayList<Card>();
+	}
+	
+	public int value() {
+		int sum = 0;
+		for(Card card : cards) {
+			sum += card.value();
+		}
+		return sum;
 	}
 	
 	public void addCard(Card card) {
@@ -31,4 +38,7 @@ public class Hand {
 		
 		return sb.toString();
 	}
+
+	@SuppressWarnings("unused")
+	private static final long serialVersionUID = 1L;
 }

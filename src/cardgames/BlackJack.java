@@ -18,13 +18,13 @@ public class BlackJack {
 	}
 
 	private void initialize() {
-		// TODO Auto-generated method stub
 		// get player info
 		// init players
+		players.add(new UserPlayer("Player 1"));
+		players.add(new Dealer());
 	}
 
 	private void go() {
-		// TODO Auto-generated method stub
 		
 		// while keep playing
 		//   check deck
@@ -37,6 +37,23 @@ public class BlackJack {
 		//       check status
 		//       update display
 		
+		deck.shuffle();
+		for(int i=0; i<2; i++) {
+			for(Player p : players) {
+				p.getHand().addCard(deck.draw());
+			}
+		}
+		
+		display();
+	}
+
+	private void display() {
+		for(Player p : players) {
+			System.out.println(p.getName() + ":");
+			System.out.println(p.getHand());
+			System.out.println("value: " + p.getHand().value());
+			System.out.println();
+		}
 	}
 	
 	
