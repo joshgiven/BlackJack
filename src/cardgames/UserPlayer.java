@@ -34,16 +34,6 @@ public class UserPlayer extends Player {
 
 	@Override
 	public Play getPlay(Player dealer) {
-		// present table
-//		Player[] players = { dealer, this };
-//		for(Player p : players) {
-//			System.out.println();
-//			System.out.print(p.getName() + "'s cards : ");
-//			System.out.print(p.displayHand());
-//		}
-//		//System.out.println();
-		
-		// get user's play
 		UserPlayMenuItem choice = (UserPlayMenuItem)menu.getUserMenuChoice();
 		System.out.println();
 		

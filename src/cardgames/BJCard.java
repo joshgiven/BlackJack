@@ -7,6 +7,11 @@ public class BJCard extends Card {
 	}
 
 	@Override
+	public String toString() {
+		return getRank().toString();
+	}
+
+	@Override
 	public int value() {
 		switch(getRank()) {
 		case ACE:
@@ -35,5 +40,4 @@ public class BJCard extends Card {
 			return 2;
 		}
 	}
-
 }
