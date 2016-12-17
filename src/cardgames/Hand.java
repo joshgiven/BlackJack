@@ -22,9 +22,10 @@ public class Hand {
 		if(card == null)
 			return;
 		
-		int index = Collections.binarySearch(cards, card);
-		index = (index < 0) ? Math.abs(index+1) : index;
-		cards.add(index, card);
+//		int index = Collections.binarySearch(cards, card);
+//		index = (index < 0) ? Math.abs(index+1) : index;
+//		cards.add(index, card);
+		cards.add(card);
 	}
 	
 	public void removeCard(Card card) {
