@@ -11,7 +11,7 @@ public class BlackJack {
 	InputPrompter menu;
 	Deck deck;
 	List<Player> players;
-	Player dealer;
+	Dealer dealer;
 	//Player user;
 
 	public BlackJack() {
@@ -31,7 +31,7 @@ public class BlackJack {
 
 		// get player info
 		//String userName = menu.getUserString("enter your name: ");
-		String userName = "Josh";
+		String userName = "User";
 
 		// init players
 		players.add(new UserPlayer(userName));
@@ -49,7 +49,7 @@ public class BlackJack {
 		
 		do {
 			// check deck
-			if(deck.size()/52 < (1 - deckFactor)) {
+			if(deck.size()/(double)52 < (1 - deckFactor)) {
 				System.out.println("new deck");	
 				deck = new Deck();
 			}
@@ -62,34 +62,67 @@ public class BlackJack {
 				}
 			}
 			
+//			dealer.newHand();
+//			dealer.getHand().addCard(new BJCard(Rank.ACE, Suit.SPADES));
+//			dealer.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
+			
 			// while no winners
-			//   for each player
+			//   for each player (non-dealer)
 			//     get player choice
 			//     update player (hit, split, dd)
 			//     check status
+			//   
+			//   dealer loop
+			//
 			//   update display
-			boolean gameover = false;
-			while (!gameover) {
-				display(gameover);
+			
+			if(dealer.isShowingAce()) {} // insurance
+			
+			if(dealer.hasTwentyOne()) {
+				dealer.setStatus(Status.TWENTYONE);
+				if(dealer.hasBlackJack()) {
+					dealer.setStatus(Status.BLACKJACK);
+				}
+				dealer.showHoleCard();
+				
+				// does a dealer 21 end game?
+				for(Player p : players)
+					p.setStatus(Status.STAND);
+			}
+			
+			boolean isGameOver = false;
+			boolean isDealerTurn = false;
+			while (!isGameOver) {
+				display(isGameOver);
 				
 				for (Player p : players) {
+					if(p == dealer && !isDealerTurn)
+						continue;
+					
 					if(p.getHand().value() == 21) {
-						p.setStatus(Status.TWENTYONE);
+						if(p.hasBlackJack())
+							p.setStatus(Status.BLACKJACK);
+						else
+							p.setStatus(Status.TWENTYONE);
 					}
 					
 					if (p.getStatus() == Status.INPLAY) {
 						Play play = p.getPlay(dealer);
 						
-						System.out.println(p.getName() + " " + play + "s" );
-						try { TimeUnit.MILLISECONDS.sleep(500); } 
+						System.out.println("    " + p.getName() + " " + 
+						                   play.toString().toLowerCase() + "s" );
+						
+						try { TimeUnit.MILLISECONDS.sleep(750); } 
 						catch (Exception e) {}
 						
 						switch (play) {
 						case HIT:
 							p.getHand().addCard(deck.draw());
 							int newHandValue = p.getHand().value();
-							if (newHandValue >= 21)
+							if (newHandValue > 21)
 								p.setStatus(Status.BUST);
+							else if(newHandValue == 21)
+								p.setStatus(Status.TWENTYONE);
 							break;
 
 						case STAND:
@@ -100,18 +133,31 @@ public class BlackJack {
 					}					
 				}
 
-				gameover = true;
+				isDealerTurn = true;
 				for(Player p : players) {
+					if(p == dealer)
+						continue;
+					
 					if(p.getStatus() == Status.INPLAY) {
-						gameover = false;
+						isDealerTurn = false;
 						break;
 					}
 				}
+				if(isDealerTurn)
+					dealer.showHoleCard();
 				
-				if(gameover) {
-					dealer.setStatus(Status.DEALERREVEAL);
-					
-					display(gameover);
+				isGameOver = true;
+				for(Player p : players) {
+					if(p.getStatus() == Status.INPLAY) {
+						isGameOver = false;
+						break;
+					}
+				}
+
+				// check for case that all non-dealers bust
+				
+				if(isGameOver) {
+					display(isGameOver);
 
 					for(Player p : players) {
 						if(p==dealer) {
@@ -144,6 +190,7 @@ public class BlackJack {
 				p.newHand();
 				p.setStatus(Status.INPLAY);
 			}
+			dealer.hideHoleCard();
 			
 			keepPlaying = menu.getUserYN("\nplay again? (Y/N) ");
 		} while (keepPlaying);
@@ -155,17 +202,23 @@ public class BlackJack {
 		displayers.remove(dealer);
 		displayers.add(0, dealer);
 		
+		String sep = "----------------------------------";
+		
+		System.out.println();
+		System.out.println(sep);
 		for (Player p : displayers) {
-			System.out.println();
+			
 			//System.out.print(p.getName() + "'s cards : ");
-			System.out.print(p.getName() + "\t: ");
+			System.out.print(" " + p.getName() + "\t: ");
 			System.out.print(p.displayHand());
 			if(p.getStatus() == Status.BUST)
 				System.out.print("(BUSTED)");
 			else if(showValues)
 				System.out.print("(value: " + p.getHand().value() + ")");
+			
+			System.out.println();
 		}
-		System.out.println();
+		System.out.println(sep);
 	}
 	
 	private void displaySplash() {

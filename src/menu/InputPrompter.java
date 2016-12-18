@@ -156,13 +156,13 @@ public class InputPrompter {
 		} while(true);
 	}
 
-//	public MenuItem[] getMenuItems() {
-//		return menuItems;
-//	}
-//
-//	public void setMenuItems(MenuItem[] menuItems) {
-//		this.menuItems = menuItems;
-//	}
+	public MenuItem[] getMenuItems() {
+		return menuItems;
+	}
+
+	public void setMenuItems(MenuItem[] menuItems) {
+		this.menuItems = menuItems;
+	}
 
 	public String getMenuItemSeperator() {
 		return menuItemSeperator;

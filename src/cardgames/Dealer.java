@@ -1,9 +1,12 @@
 package cardgames;
 
 public class Dealer extends Player {
-
+	
+	private boolean hideHoleCard;
+	
 	public Dealer() {
 		super("Dealer");
+		hideHoleCard();
 	}
 
 	@Override
@@ -17,13 +20,26 @@ public class Dealer extends Player {
 	public String displayHand() {
 		String s = getHand().toString();
 		
-		if(getStatus() != Status.DEALERREVEAL) {
+		if(hideHoleCard) {
 			String[] arr = s.split(" ");
 			arr[1] = "?";
 			s = String.join(" ", arr);
 		}
 		
 		return s;
+	}
+
+	public void hideHoleCard() {
+		hideHoleCard = true;
+	}
+
+	public void showHoleCard() {
+		hideHoleCard = false;
+	}
+
+	public boolean isShowingAce() {
+		// TODO Auto-generated method stub
+		return getHand().toString().matches("^A");
 	}
 
 }

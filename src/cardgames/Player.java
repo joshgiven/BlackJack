@@ -6,7 +6,7 @@ public abstract class Player {
 	}
 	
 	static enum Play {
-		HIT, STAND //, DOUBLE_HIT, DOUBLE_STAND, SPLIT, SURRENDER, INSURANCE
+		HIT, STAND ,DOUBLE, SPLIT //, INSURANCE, SURRENDER
 	}
 	
 	private String name;
@@ -43,5 +43,21 @@ public abstract class Player {
 	
 	public Hand getHand() {
 		return hand;
+	}
+
+	public boolean hasTwentyOne() {
+		return getHand().value() == 21;
+	}
+	
+	public boolean hasDoubles() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean hasBlackJack() {
+		if(!hasTwentyOne() && hand.getNumCards() == 2)
+			return true;
+		else
+			return false;
 	}
 }
