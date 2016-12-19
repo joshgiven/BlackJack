@@ -24,9 +24,11 @@ From the command line:
   - *BJCard* IS-A Card : Blackjack-specific behavior'd Card
   - *BJHand* IS-A Hand : Blackjack-specific behavior'd Hand
   - *Player* : abstraction of a Blackjack player with default bevahior
+    - HAS-A Hand
   - *Dealer* IS-A Player : Blackjack Player with dealer-specific behavior
-  - *UserPlayer* IS-A Player : Player that gets user input to make game decisions
-  - *DummyPlayer* IS-A Player : Player that always HITs
+  - *SplitablePlayer* IS-A Player : Abstract class for player that may split hands
+  - *UserPlayer* IS-A SplitablePlayer : Player that gets user input to make game decisions
+  - *DummyPlayer* IS-A SplitablePlayer : Player that always HITs
 
 - **menu** package:
   - *InputPrompter* : User input and menu-ing class
