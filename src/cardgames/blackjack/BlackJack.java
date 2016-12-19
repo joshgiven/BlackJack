@@ -44,7 +44,6 @@ public class BlackJack {
 		players.add(dealer = new Dealer());
 	}
 
-
 	private void play() {
 		boolean keepPlaying = true;
 		do {
@@ -67,6 +66,8 @@ public class BlackJack {
 
 
 			while (!isGameOver) {
+				displayTable(isGameOver);
+				
 				if(dealer.hasBlackJack()) {
 					dealer.setStatus(Status.BLACKJACK);
 					dealer.showHoleCard();
@@ -78,10 +79,10 @@ public class BlackJack {
 							p.setStatus(Status.STAND);
 						
 						isGameOver = true;
+						
+						print("    * Dealer has BLACKJACK! *");
 					}
 				}
-
-				displayTable(isGameOver);
 
 				for (Player p : players) {
 					if(p == dealer && !isDealerTurn)
@@ -95,7 +96,10 @@ public class BlackJack {
 								
 								// Does player blackjack end game?
 								//   (assignment says yes)
-								dealer.setStatus(Status.STAND);
+								{
+									dealer.setStatus(Status.STAND);
+									print("    * " + p.getName() + " has BLACKJACK *");
+								}
 							}
 							else {
 								p.setStatus(Status.TWENTYONE);
