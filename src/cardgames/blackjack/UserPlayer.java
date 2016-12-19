@@ -4,12 +4,12 @@ import menu.*;
 
 public class UserPlayer extends SplitablePlayer {
 	
-	final static UserPlayMenuItem[] SIMPLE_MENU = { 
+	final static UserPlayMenuItem[] HS_MENU = { 
 			UserPlayMenuItem.HIT, 
 			UserPlayMenuItem.STAND
 			};
 	
-	final static UserPlayMenuItem[] SIMPLE_SPLIT_MENU = { 
+	final static UserPlayMenuItem[] HSS_MENU = { 
 			UserPlayMenuItem.HIT, 
 			UserPlayMenuItem.STAND,
 			UserPlayMenuItem.SPLIT 
@@ -22,7 +22,7 @@ public class UserPlayer extends SplitablePlayer {
 			UserPlayMenuItem.SPLIT 
 	};
 
-	final static UserPlayMenuItem[] NO_SPLIT_MENU = { 
+	final static UserPlayMenuItem[] HSD_MENU = { 
 			UserPlayMenuItem.HIT, 
 			UserPlayMenuItem.STAND, 
 			UserPlayMenuItem.DOUBLE
@@ -33,7 +33,7 @@ public class UserPlayer extends SplitablePlayer {
 	public UserPlayer(String name, int purse) {
 		super(name, purse);
 		// menu = new InputPrompter(UserPlayMenuItem.values());
-		menu = new InputPrompter(SIMPLE_MENU);
+		menu = new InputPrompter(HS_MENU);
 		menu.setMenuItemSeperator("   ");
 		menu.setMenuTopSeperator(     "----------------------------------\n   ");
 		menu.setMenuBottomSeperator("\n----------------------------------\n");
@@ -54,12 +54,18 @@ public class UserPlayer extends SplitablePlayer {
 
 	@Override
 	public Play getPlay(Player dealer) {
-		
-		if(hasDoubles() && getPurse() > getCurrentWager())
-		 	menu.setMenuItems(SIMPLE_SPLIT_MENU);
-		 else
-			menu.setMenuItems(SIMPLE_MENU);
-		
+		boolean freshHand = (!hasSplit()) && (getHand().getNumCards() == 2);
+
+		if(freshHand && getPurse() > getCurrentWager()) {
+			if(hasDoubles()) 
+				menu.setMenuItems(FULL_MENU); // Hit Stand Split Double
+			else
+				menu.setMenuItems(HSD_MENU);  // Hit Stand Double
+		}
+		else {
+			menu.setMenuItems(HS_MENU);
+		}
+
 		menu.setMenuPrompt(           " "+ getName() +"'s play: ");
 		UserPlayMenuItem choice = (UserPlayMenuItem)menu.getUserMenuChoice();
 		System.out.println();

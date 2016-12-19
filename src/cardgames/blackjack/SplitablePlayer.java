@@ -4,10 +4,12 @@ import cardgames.core.Card;
 
 abstract public class SplitablePlayer extends Player {
 	SplitablePlayer originalPlayer;
+	private boolean hasSplit;
 	
 	public SplitablePlayer(String name, int purse) {
 		super(name, purse);
 		originalPlayer = this;
+		hasSplit = false;
 	}
 
 	abstract protected SplitablePlayer newSplitablePlayer(String name, int purse);
@@ -20,9 +22,16 @@ abstract public class SplitablePlayer extends Player {
 		originalPlayer = ogp;
 	}
 	
+	public void newHand() {
+		super.newHand();
+		setHasSplit(false);
+	}
+	
+
 	public Player splitPlayer() {
 		String tmpName = getName() + "(2)";
 		
+		hasSplit = true;
 		setName(getName() + "(1)");
 		settleLoss(getCurrentWager());
 		
@@ -32,7 +41,8 @@ abstract public class SplitablePlayer extends Player {
 
 		Card card = getHand().remove(1);
 		tmpPlayer.getHand().addCard(card);
-		
+		tmpPlayer.setHasSplit(true);
+
 		return tmpPlayer;
 	}
 
@@ -44,6 +54,15 @@ abstract public class SplitablePlayer extends Player {
 		
 		collectWinnings(tmpPlayer.getPurse());
 		setName(getName().replaceAll("\\(1\\)$", ""));
+		hasSplit = false;
+	}
+
+	public boolean hasSplit() {
+		return hasSplit;
+	}
+
+	public void setHasSplit(boolean hasSplit) {
+		this.hasSplit = hasSplit;
 	}
 
 }

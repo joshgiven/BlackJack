@@ -33,7 +33,8 @@ public class BlackJack {
 		displaySplash();
 
 		// get player info
-		String userName = "User";
+		// String userName = "User";
+		String userName = menu.getUserString("What's your name, pal? ");
 		int numPlayers = 1;
 		
 		// init players
@@ -72,7 +73,10 @@ public class BlackJack {
 			// user.newHand();
 			// user.getHand().addCard(new BJCard(Rank.TEN, Suit.DIAMONDS));
 			// user.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
-
+			// deck.add(0,new BJCard(Rank.TEN, Suit.DIAMONDS));
+			// deck.add(0,new BJCard(Rank.TEN, Suit.DIAMONDS));
+			// deck.add(0,new BJCard(Rank.TEN, Suit.DIAMONDS));
+			// deck.add(0,new BJCard(Rank.TEN, Suit.DIAMONDS));
 			// TODO: add insurance option
 			// if(dealer.isShowingAce()) {} // insurance
 
@@ -135,6 +139,9 @@ public class BlackJack {
 							playerSplitsHand(p);
 							index--; // rollback index so player goes again
 							break;
+						case DOUBLE:
+							playerDoubles(p);
+							break;
 						case STAND:
 						default:
 							playerStands(p);
@@ -190,6 +197,19 @@ public class BlackJack {
 		} while (keepPlaying && user.getPurse() > 0);
 
 		displayExitMessage();
+	}
+
+	private void playerDoubles(Player p) {
+		// is there enough money to cover add'l bet?
+		if(p.getCurrentWager() < p.getPurse())
+			p.setCurrentWager(2 * p.getCurrentWager());
+		
+		// player must hit ...
+		playerHits(p);
+		
+		// ... and end turn
+		if(p.getStatus() == Status.INPLAY)
+			p.setStatus(Status.STAND);
 	}
 
 	private void playerHits(Player p) {
@@ -318,7 +338,7 @@ public class BlackJack {
 		sb.append("    * ").append(p.getName()).append(" ");
 		sb.append(play.toString().toLowerCase()).append("s");
 		
-		if(play == Play.HIT) {
+		if(play == Play.HIT || play == Play.DOUBLE) {
 			sb.append(", ");
 			sb.append(p.getHand().get(p.getHand().size()-1));
 			sb.append(" was drawn");
