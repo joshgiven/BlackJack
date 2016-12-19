@@ -41,9 +41,17 @@ public class BlackJack {
 		int numUsers = 0;
 		do {
 			numUsers = menu.getUserInt("How many users we be playing (1-5)? ");
-		} while(numUsers < 1 && numUsers > 5);
-		
-		//showCardCounts = menu.getUserYN("Would you like to count cards? (y/n) ");
+		} while(!(numUsers > 0 && numUsers < 5));
+
+		int numPlayers = 5;
+		if(numUsers < 5) {
+			do {
+				numPlayers = menu.getUserInt(
+						String.format("How players at the table (%d-5)? ", numUsers));
+			} while(!(numPlayers >= numUsers && numPlayers < 5));
+		}
+
+		showCardCounts = menu.getUserYN("Would you like to count cards? (y/n) ");
 		
 		// get player info
 		for(int i=0; i < numUsers; i++) {
@@ -53,7 +61,7 @@ public class BlackJack {
 			players.add(userPlayer);
 		}
 		
-		int numPlayers = 5;
+		//int numPlayers = 5;
 		while(players.size() < numPlayers) {
 			players.add(new DummyPlayer("Player" + (players.size()+1), STARTING_PURSE));
 		}
@@ -111,7 +119,7 @@ public class BlackJack {
 
 			if(dealer.hasBlackJack()) {
 				dealer.setStatus(Status.BLACKJACK);
-				dealer.showHoleCard();
+				showHoleCard();
 			}
 			
 			while (!isGameOver) {
@@ -144,7 +152,7 @@ public class BlackJack {
 								//   (assignment says yes)
 								{
 									dealer.setStatus(Status.STAND);
-									dealer.showHoleCard();
+									showHoleCard();
 									print("    * " + p.getName() + " has BLACKJACK *");
 								}
 							}
@@ -208,7 +216,7 @@ public class BlackJack {
 				}
 				
 				if(isDealerTurn) {
-					dealer.showHoleCard();
+					showHoleCard();
 					
 					// if nobody playing and dealer has highest hand, then stop
 					if(isDealerWinning)
@@ -236,6 +244,13 @@ public class BlackJack {
 		displayExitMessage();
 	}
 
+	private void showHoleCard() {
+		if(!dealer.isShowingHoleCard()) {
+			lenny.count(dealer.getHand().get(1));
+			dealer.showHoleCard();
+		}
+	}
+
 	private void playerDoubles(Player p) {
 		// is there enough money to cover add'l bet?
 		if(p.getCurrentWager() < p.getPurse())
@@ -249,14 +264,18 @@ public class BlackJack {
 			p.setStatus(Status.STAND);
 	}
 
-	private Card dealCard() {
+	private Card dealCard(Player p) {
 		Card card = deck.draw();
-		lenny.count(card);
+		
+		if(p != dealer || (p == dealer && dealer.getHand().getNumCards() != 1)) {
+			lenny.count(card);
+		}
+		
 		return card;
 	}
 	
 	private void playerHits(Player p) {
-		p.getHand().addCard(dealCard());
+		p.getHand().addCard(dealCard(p));
 		int newHandValue = p.getHand().value();
 		if (newHandValue > 21)
 			p.setStatus(Status.BUST);
@@ -349,7 +368,7 @@ public class BlackJack {
 					p.setStatus(Status.STAND);
 				}
 				else {
-					p.getHand().addCard(dealCard());
+					p.getHand().addCard(dealCard(p));
 				}
 			}
 		}
@@ -363,9 +382,9 @@ public class BlackJack {
 			print("Replacing deck...");	
 			deck = new Deck();
 			deck.shuffle();
+			lenny.reset();
 		}
 		
-		lenny.reset();
 		return deck;
 	}
 
@@ -400,9 +419,11 @@ public class BlackJack {
 		StringBuilder sb = new StringBuilder();
 		// big \u2664 	\u2661 	\u2662 	\u2667
 		// small \u2660\u2665\u2666\u2663
-		sb.append("\n" + "\u2664\u2661\u2662\u2667"+ "\u2664\u2661\u2662\u2667" + 
-		      "   Game Summary   " + 
-		      "\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667");
+		sb.append("\n" + "\u2661\u2662\u2667"+ "\u2664\u2661\u2662\u2667" + 
+		                 "\u2664\u2661\u2662\u2667"+ "\u2664\u2661\u2662\u2667" +
+		                 "   Game Summary   " + 
+		                 "\u2664\u2661\u2662\u2667"+ "\u2664\u2661\u2662\u2667" +
+		                 "\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662");
 		
 		sb.append(tableToString(true));
 
@@ -436,7 +457,8 @@ public class BlackJack {
 		sb.append("\n" + "\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
 				"\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
 				"\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
-				"\u2664\u2661\u2662");
+				"\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" + 
+				"\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" + "\u2664");
 		
 		print(sb.toString());
 	}
@@ -451,8 +473,9 @@ public class BlackJack {
 		List<Player> displayers = new ArrayList<>(players);
 		displayers.remove(dealer);
 		displayers.add(0, dealer);
-		
-		String sep = "  " + "+---------------------------------";
+	
+		//                   |----+----+----+----+----+----+----+----+----+----+----+----+----+
+		String sep = "  " + "+-----------------------------------------------------------------";
 		
 		sb.append("\n");
 		sb.append(sep).append("\n");
@@ -487,7 +510,7 @@ public class BlackJack {
 	private void displayExitMessage() {
 		
 		for(Player user : quitters) {
-			print("\n" + user.getName() + " left with $" + user.getPurse());
+			print("\n" + user.getName() + " left the casino with $" + user.getPurse() + ".");
 			if(user.getPurse() == 0) {
 				print("Gambling problem? Call 1-800-522-4700");
 			}

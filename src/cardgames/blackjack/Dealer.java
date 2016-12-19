@@ -38,6 +38,10 @@ public class Dealer extends Player {
 		hideHoleCard = true;
 	}
 
+	public boolean isShowingHoleCard() {
+		return !hideHoleCard;
+	}
+	
 	public void showHoleCard() {
 		hideHoleCard = false;
 	}
