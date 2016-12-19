@@ -2,12 +2,12 @@
 
 ![Jack](https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker-sm-214-Js.png)
 
-'To turn in a project, you must push it to GitHub. You must include a README.md that describes how to run your program. Include an overview of the class structure you chose to use.'
-
 ### OVERVIEW
+Plays a game of Blackjack to SD homework specs
 
-### HOW TO run
-'java cardgames.blackjac.BlackJack'
+### HOW TO RUN
+From the command line:
+`java cardgames.blackjack.BlackJack`
 
 ### CLASS STRUCTURE
 - **cardgames.core** package:
@@ -20,9 +20,17 @@
 
 - **cardgames.core** package:
   - *BlackJack* : Game logic and driver
-  - *BJCard* IS-A Card : Blackjack-specific card
-  - *BJHand* IS-A Hand : Blackjack-specific hand
-  - *Player* : abstraction of a Blackjack player
-  - *Dealer* IS-A Player : Blackjack player with dealer-specific behavior
-  - *UserPlayer* IS-A Player : player that gets user input to make game decisions
-  - *DummyPlayer* IS-A Player : player that always HITs
+    - HAS-A Deck
+    - HAS-A List of Players (one instance of Dealer, one of UserPlayer)
+  - *BJCard* IS-A Card : Blackjack-specific behavior'd Card
+  - *BJHand* IS-A Hand : Blackjack-specific behavior'd Hand
+  - *Player* : abstraction of a Blackjack player with default bevahior
+  - *Dealer* IS-A Player : Blackjack Player with dealer-specific behavior
+  - *UserPlayer* IS-A Player : Player that gets user input to make game decisions
+  - *DummyPlayer* IS-A Player : Player that always HITs
+
+- **menu** package:
+  - *InputPrompter* : User input and menu-ing class 
+  - *Actionable* : Functional Interface for use with InputPrompter
+  - *MenuItem* : Interface for use with InputPrompter menu-ing methods
+  - *InputPrompterDriver* : Test driver for InputPrompter
