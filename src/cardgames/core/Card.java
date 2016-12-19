@@ -1,4 +1,4 @@
-package cardgames;
+package cardgames.core;
 
 public abstract class Card implements Comparable<Card> {
 	private Rank rank;

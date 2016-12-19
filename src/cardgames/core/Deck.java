@@ -1,4 +1,4 @@
-package cardgames;
+package cardgames.core;
 
 import java.util.*;
 

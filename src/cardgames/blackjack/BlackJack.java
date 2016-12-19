@@ -3,11 +3,10 @@ package cardgames.blackjack;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import cardgames.*;
+import menu.*;
+import cardgames.core.*;
 import cardgames.blackjack.Player.Play;
 import cardgames.blackjack.Player.Status;
-
-import menu.*;
 
 public class BlackJack {
 	InputPrompter menu;

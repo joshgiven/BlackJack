@@ -1,6 +1,6 @@
 package cardgames.blackjack;
 
-import cardgames.Hand;
+import cardgames.core.Hand;
 
 public abstract class Player {
 	static enum Status {

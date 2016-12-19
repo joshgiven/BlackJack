@@ -1,4 +1,4 @@
-package cardgames;
+package cardgames.core;
 
 public enum Suit {
 	HEARTS("\u2661"), 

@@ -1,8 +1,8 @@
 package cardgames.blackjack;
 
-import cardgames.Card;
-import cardgames.Hand;
-import cardgames.Rank;
+import cardgames.core.Card;
+import cardgames.core.Hand;
+import cardgames.core.Rank;
 
 public class BJHand extends Hand {
 
