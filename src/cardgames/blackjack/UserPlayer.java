@@ -2,12 +2,18 @@ package cardgames.blackjack;
 
 import menu.*;
 
-public class UserPlayer extends Player {
+public class UserPlayer extends SplitablePlayer {
 	
 	final static UserPlayMenuItem[] SIMPLE_MENU = { 
 			UserPlayMenuItem.HIT, 
 			UserPlayMenuItem.STAND
 			};
+	
+	final static UserPlayMenuItem[] SIMPLE_SPLIT_MENU = { 
+			UserPlayMenuItem.HIT, 
+			UserPlayMenuItem.STAND,
+			UserPlayMenuItem.SPLIT 
+	};
 	
 	final static UserPlayMenuItem[] FULL_MENU = { 
 			UserPlayMenuItem.HIT, 
@@ -31,7 +37,13 @@ public class UserPlayer extends Player {
 		menu.setMenuItemSeperator("   ");
 		menu.setMenuTopSeperator(     "----------------------------------\n   ");
 		menu.setMenuBottomSeperator("\n----------------------------------\n");
-		menu.setMenuPrompt(           " Enter play: ");
+		menu.setMenuPrompt(           " "+ name +"'s play: ");
+	}
+
+
+	@Override
+	protected SplitablePlayer newSplitablePlayer(String name, int purse) {
+		return new UserPlayer(name, purse);
 	}
 
 	@Override
@@ -43,11 +55,12 @@ public class UserPlayer extends Player {
 	@Override
 	public Play getPlay(Player dealer) {
 		
-		// if(hasDoubles())
-		// 	menu.setMenuItems(FULL_MENU);
-		// else
-		//	menu.setMenuItems(NO_SPLIT_MENU);
+		if(hasDoubles() && getPurse() > getCurrentWager())
+		 	menu.setMenuItems(SIMPLE_SPLIT_MENU);
+		 else
+			menu.setMenuItems(SIMPLE_MENU);
 		
+		menu.setMenuPrompt(           " "+ getName() +"'s play: ");
 		UserPlayMenuItem choice = (UserPlayMenuItem)menu.getUserMenuChoice();
 		System.out.println();
 		

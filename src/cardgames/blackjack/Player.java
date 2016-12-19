@@ -18,7 +18,6 @@ public abstract class Player {
 	private int purse;
 	private int currentWager;
 	
-	
 	public Player(String name, int purse) {
 		this.name = name;
 		newHand();
@@ -28,8 +27,10 @@ public abstract class Player {
 		this.currentWager = 0;
 	}
 
-	public abstract Play getPlay(Player dealer);
-		
+	abstract public Play getPlay(Player dealer);
+
+	abstract public int placeWager();
+
 	public Status getStatus() {
 		return status;
 	}
@@ -42,6 +43,10 @@ public abstract class Player {
 		return name;
 	}
 
+	protected void setName(String name) {
+		this.name = name;
+	}
+	
 	public String displayHand() {
 		return hand.toString();
 	}
@@ -60,6 +65,10 @@ public abstract class Player {
 	
 	public boolean hasDoubles() {
 		// TODO Auto-generated method stub
+		if(hand.getNumCards() == 2 &&
+		   hand.get(0).getRank() == hand.get(1).getRank()) {
+				return true;
+		}
 		return false;
 	}
 
@@ -69,9 +78,6 @@ public abstract class Player {
 		else
 			return false;
 	}
-
-	
-	abstract public int placeWager();
 	
 	public void settleLoss(int debt) {
 		purse -= debt;
@@ -81,7 +87,6 @@ public abstract class Player {
 		purse += cashMoney;
 	}
 	
-	// betting-related methods
 	public int getCurrentWager() {
 		return currentWager;
 	}
@@ -97,4 +102,5 @@ public abstract class Player {
 	protected void setPurse(int purse) {
 		this.purse = purse;
 	}
+
 }

@@ -1,6 +1,6 @@
 package cardgames.blackjack;
 
-public class DummyPlayer extends Player {
+public class DummyPlayer extends SplitablePlayer {
 
 	public DummyPlayer(String name, int purse) {
 		super(name, purse);
@@ -16,4 +16,8 @@ public class DummyPlayer extends Player {
 		return 5;
 	}
 
+	@Override
+	protected SplitablePlayer newSplitablePlayer(String name, int purse) {
+		return new DummyPlayer(name, purse);
+	}
 }

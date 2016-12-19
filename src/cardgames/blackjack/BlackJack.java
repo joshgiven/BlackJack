@@ -69,9 +69,9 @@ public class BlackJack {
 			//dealer.newHand();
 			//dealer.getHand().addCard(new BJCard(Rank.THREE, Suit.SPADES));
 			//dealer.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
-			//user.newHand();
-			//user.getHand().addCard(new BJCard(Rank.THREE, Suit.SPADES));
-			//user.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
+			// user.newHand();
+			// user.getHand().addCard(new BJCard(Rank.TEN, Suit.DIAMONDS));
+			// user.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
 
 			// TODO: add insurance option
 			// if(dealer.isShowingAce()) {} // insurance
@@ -79,27 +79,28 @@ public class BlackJack {
 			boolean isGameOver = false;
 			boolean isDealerTurn = false;
 
-
+			if(dealer.hasBlackJack()) {
+				dealer.setStatus(Status.BLACKJACK);
+				dealer.showHoleCard();
+			}
+			
 			while (!isGameOver) {
 				displayTable(isGameOver);
 				
+				// does a dealer blackjack end game?
+				//  (assignment says yes)
 				if(dealer.hasBlackJack()) {
-					dealer.setStatus(Status.BLACKJACK);
-					dealer.showHoleCard();
+					for(Player p : players)
+						p.setStatus(Status.STAND);
 					
-					// does a dealer blackjack end game?
-					//  (assignment says yes)
-					{
-						for(Player p : players)
-							p.setStatus(Status.STAND);
-						
-						isGameOver = true;
-						
-						print("    * Dealer has BLACKJACK! *");
-					}
+					isGameOver = true;
+					
+					print("    * Dealer has BLACKJACK! *");
 				}
 
-				for (Player p : players) {
+				for(int index=0; index < players.size(); index++) {
+					Player p = players.get(index);
+					
 					if(p == dealer && !isDealerTurn)
 						continue;
 
@@ -125,23 +126,22 @@ public class BlackJack {
 						}
 
 						Play play = p.getPlay(dealer);
-						displayPlay(p, play);
 
 						switch (play) {
 						case HIT:
-							p.getHand().addCard(deck.draw());
-							int newHandValue = p.getHand().value();
-							if (newHandValue > 21)
-								p.setStatus(Status.BUST);
-							else if(newHandValue == 21)
-								p.setStatus(Status.TWENTYONE);
+							playerHits(p);
 							break;
-
+						case SPLIT:
+							playerSplitsHand(p);
+							index--; // rollback index so player goes again
+							break;
 						case STAND:
 						default:
-							p.setStatus(Status.STAND);
+							playerStands(p);
 							break;
 						}
+	
+						displayPlay(p, play);
 					}					
 				}
 
@@ -158,8 +158,6 @@ public class BlackJack {
 					if(p.getStatus() == Status.BUST)
 						numBusted++;
 					
-//					if(p.getHand().value() > dealer.getHand().value())
-//					if(p.getHand().value() >= dealer.getHand().value())
 					if(dealer.getHand().value() < p.getHand().value())
 						isDealerWinning = false;
 				}
@@ -187,17 +185,43 @@ public class BlackJack {
 
 			displaySummary();
 			settleWagers();
-			
 			resetTable();
 
-			// keepPlaying = menu.getUserYN("\nPlay again? (Y/N) ");
 		} while (keepPlaying && user.getPurse() > 0);
 
 		displayExitMessage();
 	}
 
+	private void playerHits(Player p) {
+		p.getHand().addCard(deck.draw());
+		int newHandValue = p.getHand().value();
+		if (newHandValue > 21)
+			p.setStatus(Status.BUST);
+		else if(newHandValue == 21)
+			p.setStatus(Status.TWENTYONE);
+	}
+
+	private void playerStands(Player p) {
+		p.setStatus(Status.STAND);
+	}
+
+	private void playerSplitsHand(Player p) {
+		if(p.getCurrentWager() > p.getPurse())
+			playerStands(p);
+		
+		// create tmp Player for 2nd hand
+		Player tmpPlayer = ((SplitablePlayer)p).splitPlayer();
+
+		// insert tmp after user's hand
+		int index = players.indexOf(p) + 1;
+		players.add(index, tmpPlayer);
+		
+		displayTable(false);
+	}
+
 	private void settleWagers() {
-		for(Player p : players) {
+		for(int i=0; i < players.size(); i++) {
+			Player p = players.get(i);
 			if(p.getCurrentWager() > 0) {
 				if(p.getStatus() == Status.BUST) {
 					p.settleLoss(p.getCurrentWager());
@@ -208,6 +232,16 @@ public class BlackJack {
 				}
 				else if(p.getHand().value() < dealer.getHand().value()) {
 					p.settleLoss(p.getCurrentWager());
+				}
+			}
+			
+			// resolve the split players
+			if(p instanceof SplitablePlayer) {
+				SplitablePlayer sp = (SplitablePlayer) p;
+				if(sp.getOriginalPlayer() != sp) {
+					sp.getOriginalPlayer().unsplitPlayer(sp);
+					players.remove(p);
+					i--;
 				}
 			}
 		}
@@ -279,8 +313,19 @@ public class BlackJack {
 	}
 	
 	private void displayPlay(Player p, Play play) {
-		print("    * " + p.getName() + " " + 
-				play.toString().toLowerCase() + "s *" );
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("    * ").append(p.getName()).append(" ");
+		sb.append(play.toString().toLowerCase()).append("s");
+		
+		if(play == Play.HIT) {
+			sb.append(", ");
+			sb.append(p.getHand().get(p.getHand().size()-1));
+			sb.append(" was drawn");
+		}
+		sb.append(" *");
+		
+		print(sb.toString());
 	}
 
 	private void displaySummary() {
@@ -317,9 +362,10 @@ public class BlackJack {
 				// push
 				sb.append("    " + p.getName() + " pushes");
 			}
+			sb.append("\n");
 		}
 		
-		sb.append("\n\n" + "\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
+		sb.append("\n" + "\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
 				"\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
 				"\u2664\u2661\u2662\u2667" + "\u2664\u2661\u2662\u2667" +
 				"\u2664\u2661\u2662");
@@ -389,10 +435,10 @@ public class BlackJack {
 		sb.append("* ************************************************ *\n");
 		sb.append("* *                                              * *\n");
 		sb.append("* *      +                                -      * *\n");
-		sb.append("* *     +++       blackjack              - -     * *\n");
+		sb.append("* *     +++       blackjack!             - -     * *\n");
 		sb.append("* *    +++++                            -   -    * *\n");
 		sb.append("* *   +++++++                          -     -   * *\n");
-		sb.append("* *    ++ ++               woo-hoo      -   -    * *\n");
+		sb.append("* *    ++ ++             (woo-hoo)      -   -    * *\n");
 		sb.append("* *      +                               - -     * *\n");
 		sb.append("* *     +++                               -      * *\n");
 		sb.append("* *                                              * *\n");
