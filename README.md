@@ -6,6 +6,8 @@ Plays a game of Blackjack to SD homework specs
   - added wagers
   - added split hands
   - added double-down wagers
+  - enabled multi-user
+  - added prototype card counter
 
 ### HOW TO RUN
 From the command line:
