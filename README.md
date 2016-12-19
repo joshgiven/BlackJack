@@ -3,6 +3,9 @@
 ![Jack](https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker-sm-214-Js.png)![Ace](https://upload.wikimedia.org/wikipedia/commons/b/be/Poker-sm-231-Ad.png)
 ### OVERVIEW
 Plays a game of Blackjack to SD homework specs
+  - added wagers
+  - added split hands
+  - added double-down wagers
 
 ### HOW TO RUN
 From the command line:
