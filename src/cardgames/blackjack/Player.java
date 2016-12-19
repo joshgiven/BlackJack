@@ -15,10 +15,17 @@ public abstract class Player {
 	private Hand hand;
 	private Status status;
 	
-	public Player(String name) {
+	private int purse;
+	private int currentWager;
+	
+	
+	public Player(String name, int purse) {
 		this.name = name;
 		newHand();
 		status = Status.INPLAY;
+		
+		this.purse = purse;
+		this.currentWager = 0;
 	}
 
 	public abstract Play getPlay(Player dealer);
@@ -61,5 +68,33 @@ public abstract class Player {
 			return true;
 		else
 			return false;
+	}
+
+	
+	abstract public int placeWager();
+	
+	public void settleLoss(int debt) {
+		purse -= debt;
+	}
+
+	public void collectWinnings(int cashMoney) {
+		purse += cashMoney;
+	}
+	
+	// betting-related methods
+	public int getCurrentWager() {
+		return currentWager;
+	}
+
+	public void setCurrentWager(int currentWager) {
+		this.currentWager = currentWager;
+	}
+
+	public int getPurse() {
+		return purse;
+	}
+
+	protected void setPurse(int purse) {
+		this.purse = purse;
 	}
 }

@@ -24,14 +24,20 @@ public class UserPlayer extends Player {
 	
 	InputPrompter menu;
 	
-	public UserPlayer(String name) {
-		super(name);
+	public UserPlayer(String name, int purse) {
+		super(name, purse);
 		// menu = new InputPrompter(UserPlayMenuItem.values());
 		menu = new InputPrompter(SIMPLE_MENU);
 		menu.setMenuItemSeperator("   ");
 		menu.setMenuTopSeperator(     "----------------------------------\n   ");
 		menu.setMenuBottomSeperator("\n----------------------------------\n");
 		menu.setMenuPrompt(           " Enter play: ");
+	}
+
+	@Override
+	public int placeWager() {
+		return menu.getUserInt(
+				String.format("\nPlace your bet ($1-$%d) (or 0 to quit): ", getPurse()));
 	}
 
 	@Override

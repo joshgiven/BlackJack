@@ -14,6 +14,8 @@ public class BlackJack {
 	List<Player> players;
 	Dealer dealer;
 	Player user;
+	
+	final int STARTING_PURSE = 200;
 
 	public BlackJack() {
 		menu = new InputPrompter(null);
@@ -35,10 +37,10 @@ public class BlackJack {
 		int numPlayers = 1;
 		
 		// init players
-		players.add(user = new UserPlayer(userName));
+		players.add(user = new UserPlayer(userName, STARTING_PURSE));
 		
 		while(players.size() < numPlayers) {
-			players.add(new DummyPlayer("Player" + (players.size()+1)));
+			players.add(new DummyPlayer("Player" + (players.size()+1), STARTING_PURSE));
 		}
 		
 		players.add(dealer = new Dealer());
@@ -48,6 +50,12 @@ public class BlackJack {
 		boolean keepPlaying = true;
 		do {
 			deck = getNewDeckIfNeeded(deck);
+			
+			getWagers();
+			
+			if(user.getCurrentWager() <= 0)
+				break;
+			
 			dealCards();
 
 			// cheater hands for testing
@@ -57,6 +65,13 @@ public class BlackJack {
 			// user.newHand();
 			// user.getHand().addCard(new BJCard(Rank.ACE, Suit.SPADES));
 			// user.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
+			
+			//dealer.newHand();
+			//dealer.getHand().addCard(new BJCard(Rank.THREE, Suit.SPADES));
+			//dealer.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
+			//user.newHand();
+			//user.getHand().addCard(new BJCard(Rank.THREE, Suit.SPADES));
+			//user.getHand().addCard(new BJCard(Rank.TEN, Suit.SPADES));
 
 			// TODO: add insurance option
 			// if(dealer.isShowingAce()) {} // insurance
@@ -98,6 +113,7 @@ public class BlackJack {
 								//   (assignment says yes)
 								{
 									dealer.setStatus(Status.STAND);
+									dealer.showHoleCard();
 									print("    * " + p.getName() + " has BLACKJACK *");
 								}
 							}
@@ -142,7 +158,9 @@ public class BlackJack {
 					if(p.getStatus() == Status.BUST)
 						numBusted++;
 					
-					if(p.getHand().value() > dealer.getHand().value())
+//					if(p.getHand().value() > dealer.getHand().value())
+//					if(p.getHand().value() >= dealer.getHand().value())
+					if(dealer.getHand().value() < p.getHand().value())
 						isDealerWinning = false;
 				}
 
@@ -164,24 +182,64 @@ public class BlackJack {
 					// if nobody playing and dealer has highest hand, then stop
 					if(isDealerWinning)
 						isGameOver = true;
-				}
-				
-				if(isGameOver) {
-					displaySummary();
-				}
+				}				
 			}
 
+			displaySummary();
+			settleWagers();
+			
 			resetTable();
 
-			keepPlaying = menu.getUserYN("\nPlay again? (Y/N) ");
-		} while (keepPlaying);
+			// keepPlaying = menu.getUserYN("\nPlay again? (Y/N) ");
+		} while (keepPlaying && user.getPurse() > 0);
 
+		displayExitMessage();
+	}
+
+	private void settleWagers() {
+		for(Player p : players) {
+			if(p.getCurrentWager() > 0) {
+				if(p.getStatus() == Status.BUST) {
+					p.settleLoss(p.getCurrentWager());
+				}
+				else if(dealer.getStatus() == Status.BUST ||
+				        p.getHand().value() > dealer.getHand().value()) {
+					p.collectWinnings(p.getCurrentWager());
+				}
+				else if(p.getHand().value() < dealer.getHand().value()) {
+					p.settleLoss(p.getCurrentWager());
+				}
+			}
+		}
+	}
+
+	private void getWagers() {
+		for(Player p : players) {
+			if(p == dealer) {
+				p.setCurrentWager(-1);
+				continue;
+			}
+			
+			if(p.getPurse() <= 0) {
+				p.setCurrentWager(0);
+				continue;
+			}
+			
+			int bet = p.placeWager();
+			if(bet > p.getPurse()) {
+				p.setCurrentWager(0);
+				continue;
+			}
+			
+			p.setCurrentWager(bet);
+		}
 	}
 
 	private void resetTable() {
 		for (Player p : players) {
 			p.newHand();
 			p.setStatus(Status.INPLAY);
+			p.setCurrentWager(0);
 		}
 		dealer.hideHoleCard();
 	}
@@ -190,7 +248,12 @@ public class BlackJack {
 		print("Dealing cards...");
 		for (int i = 0; i < 2; i++) {
 			for (Player p : players) {
-				p.getHand().addCard(deck.draw());
+				if(p.getCurrentWager() == 0) {
+					p.setStatus(Status.STAND);
+				}
+				else {
+					p.getHand().addCard(deck.draw());
+				}
 			}
 		}
 	}
@@ -236,16 +299,19 @@ public class BlackJack {
 			}
 			else if(p.getStatus() == Status.BUST) {
 				// player busted
-				sb.append("    " + p.getName() + " busted");
+				sb.append("    " + p.getName() + " busted" + 
+				          ", loses $" + p.getCurrentWager());
 			}
 			else if(dealer.getStatus() == Status.BUST ||
 					p.getHand().value() > dealer.getHand().value()) {
 				// player wins
-				sb.append("    " + p.getName() + " wins!");
+				sb.append("    " + p.getName() + " wins!" +
+						" Collects $" + p.getCurrentWager());
 			}
 			else if(p.getHand().value() < dealer.getHand().value()) {
 				// dealer wins
-				sb.append("    " + p.getName() + " loses");
+				sb.append("    " + p.getName() + " loses" + 
+						", loses $" + p.getCurrentWager());
 			}
 			else {
 				// push
@@ -278,10 +344,19 @@ public class BlackJack {
 		sb.append(sep).append("\n");
 		for (Player p : displayers) {
 			
-			sb.append(" " + p.getName() + "\t: ");
-			sb.append(p.displayHand());
+			sb.append(" " + p.getName());
+			
+			if(p != dealer) 
+				sb.append("($" + p.getCurrentWager() + ") ");
+			else
+				sb.append("      ");
+			
+			sb.append("\t: " + p.displayHand());
+			
 			if(p.getStatus() == Status.BUST)
 				sb.append("(BUSTED)");
+			else if(p.getStatus() == Status.BLACKJACK)
+				sb.append("(BLACKJACK)");
 			else if(showValues)
 				sb.append("(value: " + p.getHand().value() + ")");
 			
@@ -292,6 +367,22 @@ public class BlackJack {
 		return sb.toString();
 	}
 	
+	private void displayExitMessage() {
+		print("\nYou left with $" + user.getPurse());
+		if(user.getPurse() == 0) {
+			print("Gambling problem? Call 1-800-522-4700");
+		}
+		else if(user.getPurse() == STARTING_PURSE){
+			print("You broke even. That's kind of like winning.");
+		}
+		else if(user.getPurse() > STARTING_PURSE){
+			print("WOO-HOO! Big Winner!");
+		}
+		else {
+			print("At least you still have your shirt.");
+		}
+	}
+
 	private void displaySplash() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("****************************************************\n");

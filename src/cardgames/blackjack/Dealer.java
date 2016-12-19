@@ -5,8 +5,13 @@ public class Dealer extends Player {
 	private boolean hideHoleCard;
 	
 	public Dealer() {
-		super("Dealer");
+		super("Dealer", Integer.MAX_VALUE);
 		hideHoleCard();
+	}
+
+	@Override
+	public int placeWager() {
+		return 0;
 	}
 
 	@Override
@@ -41,5 +46,4 @@ public class Dealer extends Player {
 		// TODO Auto-generated method stub
 		return getHand().toString().matches("^A");
 	}
-
 }

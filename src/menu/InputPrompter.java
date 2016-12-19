@@ -133,15 +133,33 @@ public class InputPrompter {
 	}
 	
 	public int getUserInt(String prompt) {
+		//		do {
+		//			System.out.print(prompt);
+		//			if(input.hasNextInt()) {
+		//				return input.nextInt();
+		//			}
+		//			else {
+		//				input.next(); // eat bad data
+		//			}
+		//		} while(true);
+		
+		int num = 0;
+		boolean success = true;
 		do {
-			System.out.print(prompt);
-			if(input.hasNextInt()) {
-				return input.nextInt();
+			String numString = getUserString(prompt);
+			
+			try {
+				numString = numString.split("\\s")[0];
+				num = Integer.parseInt(numString);
+				//System.out.println(num);
+				success = true;
 			}
-			else {
-				input.next(); // eat bad data
+			catch(RuntimeException re) {
+				success = false;
 			}
-		} while(true);
+		} while(!success);
+		
+		return num;
 	}
 	
 	public double getUserDouble(String prompt) {
