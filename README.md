@@ -1,7 +1,6 @@
 # BlackJack : A Functional Command Line Blackjack Game
 
-![Jack](https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker-sm-214-Js.png)
-
+![Jack](https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker-sm-214-Js.png)![Ace](https://upload.wikimedia.org/wikipedia/commons/b/be/Poker-sm-231-Ad.png)
 ### OVERVIEW
 Plays a game of Blackjack to SD homework specs
 
@@ -30,7 +29,7 @@ From the command line:
   - *DummyPlayer* IS-A Player : Player that always HITs
 
 - **menu** package:
-  - *InputPrompter* : User input and menu-ing class 
+  - *InputPrompter* : User input and menu-ing class
   - *Actionable* : Functional Interface for use with InputPrompter
   - *MenuItem* : Interface for use with InputPrompter menu-ing methods
   - *InputPrompterDriver* : Test driver for InputPrompter
