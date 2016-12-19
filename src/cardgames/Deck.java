@@ -2,8 +2,9 @@ package cardgames;
 
 import java.util.*;
 
+import cardgames.blackjack.BJCard;
+
 public class Deck extends ArrayList<Card>{
-	private static final long serialVersionUID = 1L;
 
 	public Deck() {
 		super(52);
@@ -35,4 +36,5 @@ public class Deck extends ArrayList<Card>{
 		Collections.rotate(this, index);
 	}
 
+	private static final long serialVersionUID = 1L;
 }

@@ -1,4 +1,6 @@
-package cardgames;
+package cardgames.blackjack;
+
+import cardgames.Hand;
 
 public abstract class Player {
 	static enum Status {
@@ -38,7 +40,7 @@ public abstract class Player {
 	}
 	
 	public void newHand() {
-		hand = new Hand();
+		hand = new BJHand();
 	}
 	
 	public Hand getHand() {
@@ -55,7 +57,7 @@ public abstract class Player {
 	}
 
 	public boolean hasBlackJack() {
-		if(!hasTwentyOne() && hand.getNumCards() == 2)
+		if(hasTwentyOne() && hand.getNumCards() == 2)
 			return true;
 		else
 			return false;

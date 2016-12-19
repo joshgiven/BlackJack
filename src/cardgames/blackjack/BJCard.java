@@ -1,4 +1,8 @@
-package cardgames;
+package cardgames.blackjack;
+
+import cardgames.Card;
+import cardgames.Rank;
+import cardgames.Suit;
 
 public class BJCard extends Card {
 	

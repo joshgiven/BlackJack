@@ -1,4 +1,4 @@
-package cardgames;
+package cardgames.blackjack;
 
 import menu.*;
 
@@ -26,25 +26,21 @@ public class UserPlayer extends Player {
 	
 	public UserPlayer(String name) {
 		super(name);
-//		menu = new InputPrompter(UserPlayMenuItem.values());
+		// menu = new InputPrompter(UserPlayMenuItem.values());
 		menu = new InputPrompter(SIMPLE_MENU);
 		menu.setMenuItemSeperator("   ");
-		menu.setMenuTopSeperator(   "\n----------------------------------\n   ");
+		menu.setMenuTopSeperator(     "----------------------------------\n   ");
 		menu.setMenuBottomSeperator("\n----------------------------------\n");
-//		menu.setMenuTopSeperator(   "\n----------------------------\n");
-//		menu.setMenuBottomSeperator("\n----------------------------\n");
 		menu.setMenuPrompt(           " Enter play: ");
 	}
 
 	@Override
 	public Play getPlay(Player dealer) {
 		
-		 if(hasDoubles())
-		   menu.setMenuItems(FULL_MENU);
-		 else
-		   menu.setMenuItems(NO_SPLIT_MENU);
-		
-		
+		// if(hasDoubles())
+		// 	menu.setMenuItems(FULL_MENU);
+		// else
+		//	menu.setMenuItems(NO_SPLIT_MENU);
 		
 		UserPlayMenuItem choice = (UserPlayMenuItem)menu.getUserMenuChoice();
 		System.out.println();

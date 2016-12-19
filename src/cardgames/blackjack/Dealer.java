@@ -1,4 +1,4 @@
-package cardgames;
+package cardgames.blackjack;
 
 public class Dealer extends Player {
 	
