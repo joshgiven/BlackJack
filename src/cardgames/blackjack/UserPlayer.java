@@ -48,8 +48,11 @@ public class UserPlayer extends SplitablePlayer {
 
 	@Override
 	public int placeWager() {
-		return menu.getUserInt(
-				String.format("\nPlace your bet ($1-$%d) (or 0 to quit): ", getPurse()));
+		String prompt = 
+				String.format("\n%s: Place your bet ($1-$%d) (or 0 to quit): ", 
+				              getName(), getPurse());
+		
+		return menu.getUserInt(prompt);
 	}
 
 	@Override

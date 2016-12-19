@@ -11,16 +11,22 @@ import cardgames.blackjack.Player.Status;
 public class BlackJack {
 	InputPrompter menu;
 	Deck deck;
-	List<Player> players;
 	Dealer dealer;
-	Player user;
+	List<Player> players;
+	List<Player> users;
+	List<Player> quitters;
+	CardCounter lenny;
+	boolean showCardCounts = false;
 	
 	final int STARTING_PURSE = 200;
 
 	public BlackJack() {
 		menu = new InputPrompter(null);
-		players = new ArrayList<>();
+		players  = new ArrayList<>();
+		users    = new ArrayList<>();
+		quitters = new ArrayList<>();
 		deck = null;
+		lenny = new CardCounter();
 	}
 
 	public static void main(String[] args) {
@@ -32,18 +38,27 @@ public class BlackJack {
 	private void initialize() {
 		displaySplash();
 
+		int numUsers = 0;
+		do {
+			numUsers = menu.getUserInt("How many users we be playing (1-5)? ");
+		} while(numUsers < 1 && numUsers > 5);
+		
+		//showCardCounts = menu.getUserYN("Would you like to count cards? (y/n) ");
+		
 		// get player info
-		// String userName = "User";
-		String userName = menu.getUserString("What's your name, pal? ");
-		int numPlayers = 1;
+		for(int i=0; i < numUsers; i++) {
+			String userName = menu.getUserString(String.format("Enter User%d's name: ", i+1));
+			Player userPlayer = new UserPlayer(userName, STARTING_PURSE);
+			users.add(userPlayer);
+			players.add(userPlayer);
+		}
 		
-		// init players
-		players.add(user = new UserPlayer(userName, STARTING_PURSE));
-		
+		int numPlayers = 5;
 		while(players.size() < numPlayers) {
 			players.add(new DummyPlayer("Player" + (players.size()+1), STARTING_PURSE));
 		}
 		
+		Collections.shuffle(players);
 		players.add(dealer = new Dealer());
 	}
 
@@ -54,7 +69,18 @@ public class BlackJack {
 			
 			getWagers();
 			
-			if(user.getCurrentWager() <= 0)
+			// a wager of zero kicks a user from the game
+			for(int i=0; i < users.size(); i++) {
+				Player user = users.get(i);
+				if(user.getCurrentWager() <= 0) {
+					users.remove(i);
+					quitters.add(user);
+					i--; // look into Iterators
+				}
+			}
+			
+			// no users ends the fun
+			if(users.size() == 0)
 				break;
 			
 			dealCards();
@@ -194,7 +220,18 @@ public class BlackJack {
 			settleWagers();
 			resetTable();
 
-		} while (keepPlaying && user.getPurse() > 0);
+			// remove broke players from list
+			for(int i=0; i < users.size(); i++) {
+				Player user = users.get(i);
+				if(user.getPurse() <= 0) {
+					users.remove(i);
+					quitters.add(user);
+					i--; // look into Iterators
+				}
+			}
+
+			
+		} while (keepPlaying && users.size() > 0);
 
 		displayExitMessage();
 	}
@@ -212,8 +249,14 @@ public class BlackJack {
 			p.setStatus(Status.STAND);
 	}
 
+	private Card dealCard() {
+		Card card = deck.draw();
+		lenny.count(card);
+		return card;
+	}
+	
 	private void playerHits(Player p) {
-		p.getHand().addCard(deck.draw());
+		p.getHand().addCard(dealCard());
 		int newHandValue = p.getHand().value();
 		if (newHandValue > 21)
 			p.setStatus(Status.BUST);
@@ -306,7 +349,7 @@ public class BlackJack {
 					p.setStatus(Status.STAND);
 				}
 				else {
-					p.getHand().addCard(deck.draw());
+					p.getHand().addCard(dealCard());
 				}
 			}
 		}
@@ -322,6 +365,7 @@ public class BlackJack {
 			deck.shuffle();
 		}
 		
+		lenny.reset();
 		return deck;
 	}
 
@@ -330,6 +374,10 @@ public class BlackJack {
 		
 		try { TimeUnit.MILLISECONDS.sleep(750); } 
 		catch (Exception e) { /* eat e */ }
+	}
+	
+	private String cardCountsToString() {
+		return lenny.toString();
 	}
 	
 	private void displayPlay(Player p, Play play) {
@@ -404,13 +452,13 @@ public class BlackJack {
 		displayers.remove(dealer);
 		displayers.add(0, dealer);
 		
-		String sep = "----------------------------------";
+		String sep = "  " + "+---------------------------------";
 		
 		sb.append("\n");
 		sb.append(sep).append("\n");
 		for (Player p : displayers) {
 			
-			sb.append(" " + p.getName());
+			sb.append("  " + "| " + p.getName());
 			
 			if(p != dealer) 
 				sb.append("($" + p.getCurrentWager() + ") ");
@@ -430,22 +478,29 @@ public class BlackJack {
 		}
 		sb.append(sep).append("\n");
 		
+		if(showCardCounts)
+			sb.append(cardCountsToString()).append("\n");
+		
 		return sb.toString();
 	}
 	
 	private void displayExitMessage() {
-		print("\nYou left with $" + user.getPurse());
-		if(user.getPurse() == 0) {
-			print("Gambling problem? Call 1-800-522-4700");
-		}
-		else if(user.getPurse() == STARTING_PURSE){
-			print("You broke even. That's kind of like winning.");
-		}
-		else if(user.getPurse() > STARTING_PURSE){
-			print("WOO-HOO! Big Winner!");
-		}
-		else {
-			print("At least you still have your shirt.");
+		
+		for(Player user : quitters) {
+			print("\n" + user.getName() + " left with $" + user.getPurse());
+			if(user.getPurse() == 0) {
+				print("Gambling problem? Call 1-800-522-4700");
+			}
+			else if(user.getPurse() == STARTING_PURSE){
+				print("You broke even. That's kind of like winning.");
+			}
+			else if(user.getPurse() > STARTING_PURSE){
+				print("WOO-HOO! Big Winner!");
+			}
+			else {
+				print("At least you still have your shirt.");
+			}
+			print("");
 		}
 	}
 
